@@ -1,0 +1,14 @@
+html {
+  scroll-behavior: smooth;
+}
+body {
+  min-width: 320px;
+  min-height: 100vh;
+}
+* {
+  box-sizing: border-box;
+}
+::selection {
+  background: #dfb965;
+  color: #111;
+}

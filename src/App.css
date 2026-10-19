@@ -308,7 +308,9 @@ main {
 }
 .movie-card {
   min-width: 0;
+  cursor: pointer;
 }
+.movie-card:focus-visible { outline: 2px solid #e2bd6b; outline-offset: 4px; }
 .poster-wrap {
   position: relative;
   aspect-ratio: 1.48/1;
@@ -498,6 +500,18 @@ main {
   color: #777367;
   margin-left: 6px;
 }
+.detail-page { padding-top: 42px; padding-bottom: 72px; min-height: calc(100vh - 151px); }
+.back-link { display: inline-block; margin-bottom: 34px; color: #dfb965; text-decoration: none; font-size: 12px; }
+.back-link:hover { color: #f0ce83; }
+.detail-layout { display: grid; grid-template-columns: minmax(220px, 0.75fr) minmax(0, 1.25fr); gap: clamp(28px, 6vw, 76px); align-items: start; }
+.detail-poster { width: 100%; max-height: 600px; aspect-ratio: 0.78/1; object-fit: cover; border: 1px solid #333027; }
+.detail-copy h1 { margin: 16px 0 26px; font-size: clamp(36px, 5vw, 64px); line-height: 1.05; letter-spacing: -0.05em; font-weight: 500; }
+.detail-copy h2 { margin: 0 0 10px; color: #e9e2d4; font-size: 17px; font-weight: 600; }
+.detail-copy > p { margin: 0; color: #aaa69a; font-size: 14px; line-height: 1.8; }
+.detail-copy .trailer-heading { margin-top: 32px; }
+.trailer-frame { position: relative; width: 100%; aspect-ratio: 16/9; background: #1d1c18; border: 1px solid #333027; }
+.trailer-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.detail-copy .no-trailer { color: #8c897e; font-size: 12px; }
 .submit-button {
   margin-top: 6px;
 }
@@ -614,6 +628,9 @@ textarea:focus-visible {
   .movie-modal {
     padding: 28px 22px;
   }
+  .detail-layout { grid-template-columns: 1fr; }
+  .detail-poster { max-height: 360px; aspect-ratio: 1.2/1; }
+  .detail-copy h1 { font-size: 42px; }
   .modal-backdrop {
     padding: 12px;
   }

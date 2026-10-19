@@ -2,22 +2,29 @@ import { useEffect, useMemo, useState } from 'react'
 import MovieList from './components/MovieList.jsx'
 import Filter from './components/Filter.jsx'
 import AddMovieForm from './components/AddMovieForm.jsx'
+import MovieDetails from './components/MovieDetails.jsx'
+import { Link, Route, Routes, useNavigate } from 'react-router-dom'
 import './App.css'
 
 const starterMovies = [
-  { title: 'Dune: Part Two', description: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.', posterURL: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=700&q=85', rating: 4.8 },
-  { title: 'The Bear', description: 'A young chef returns home to Chicago to run his family’s sandwich shop and discovers a team as complicated as the kitchen.', posterURL: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=700&q=85', rating: 4.6 },
-  { title: 'Everything Everywhere All at Once', description: 'An exhausted laundromat owner is swept into an adventure across the multiverse, where only she can save every world.', posterURL: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=700&q=85', rating: 4.7 },
-  { title: 'The Last of Us', description: 'A hardened survivor and a teenage girl journey across a dangerous world and discover what hope can cost.', posterURL: 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=700&q=85', rating: 4.5 },
-  { title: 'Spider-Man: Across the Spider-Verse', description: 'Miles Morales travels across the multiverse and meets a team of Spider-People protecting its very existence.', posterURL: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=700&q=85', rating: 4.9 },
-  { title: 'Wednesday', description: 'Wednesday Addams investigates a mystery at Nevermore Academy while navigating new friendships and old family secrets.', posterURL: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=700&q=85', rating: 4.2 },
+  { id: 'dune-part-two', title: 'Dune: Part Two', description: 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.', trailerUrl: 'https://www.youtube.com/embed/Way9Dexny3w', posterURL: 'https://image.tmdb.org/t/p/w500/1pdfLvkbY9ohJlCjQH2CZjjYVvJ.jpg', rating: 4.8 },
+  { id: 'the-bear', title: 'The Bear', description: 'A young chef returns home to Chicago to run his family’s sandwich shop and discovers a team as complicated as the kitchen.', trailerUrl: 'https://www.youtube.com/embed/ojjCvICC86c', posterURL: 'https://image.tmdb.org/t/p/w500/9kwgN5FiJqQJ6GKhaLMNRakYzeG.jpg', rating: 4.6 },
+  { id: 'everything-everywhere-all-at-once', title: 'Everything Everywhere All at Once', description: 'An exhausted laundromat owner is swept into an adventure across the multiverse, where only she can save every world.', trailerUrl: 'https://www.youtube.com/embed/wxN1T1uxQ2g', posterURL: 'https://www.impawards.com/2022/posters/everything_everywhere_all_at_once_xxlg.jpg', rating: 4.7 },
+  { id: 'the-last-of-us', title: 'The Last of Us', description: 'A hardened survivor and a teenage girl journey across a dangerous world and discover what hope can cost.', trailerUrl: 'https://www.youtube.com/embed/uLtkt8BonwM', posterURL: 'https://static.wikia.nocookie.net/thelastofus/images/3/37/The_Last_of_Us_Official_Key_Art.jpg/revision/latest/scale-to-width-down/1200?cb=20230220034629', rating: 4.5 },
+  { id: 'spider-man-across-the-spider-verse', title: 'Spider-Man: Across the Spider-Verse', description: 'Miles Morales travels across the multiverse and meets a team of Spider-People protecting its very existence.', trailerUrl: 'https://www.youtube.com/embed/cqGjhVJWtEg', posterURL: 'https://cdn.marvel.com/content/2x/across_the_spider-verse.webp', rating: 4.9 },
+  { id: 'wednesday', title: 'Wednesday', description: 'Wednesday Addams investigates a mystery at Nevermore Academy while navigating new friendships and old family secrets.', trailerUrl: 'https://www.youtube.com/embed/Di310WS8zLk', posterURL: 'https://www.thetrainline.com/cms/media/12092/wednesday-show-poster.jpg', rating: 4.2 },
 ]
 
 function App() {
+  const navigate = useNavigate()
   const [movies, setMovies] = useState(() => {
     try {
       const savedMovies = localStorage.getItem('reel-favorites')
-      return savedMovies ? JSON.parse(savedMovies) : starterMovies
+      return savedMovies ? JSON.parse(savedMovies).map((movie) => {
+        const id = movie.id || slugify(movie.title)
+        const starterMovie = starterMovies.find((starter) => starter.id === id)
+        return { ...movie, id, trailerUrl: movie.trailerUrl || starterMovie?.trailerUrl || '', posterURL: starterMovie?.posterURL || movie.posterURL }
+      }) : starterMovies
     } catch {
       return starterMovies
     }
@@ -36,14 +43,14 @@ function App() {
   ), [movies, titleFilter, minimumRating])
 
   function addMovie(movie) {
-    setMovies((currentMovies) => [movie, ...currentMovies])
+    setMovies((currentMovies) => [{ ...movie, id: slugify(movie.title) }, ...currentMovies])
     setIsFormOpen(false)
   }
 
-  return (
+  const home = (
     <div className="app-shell">
       <header className="topbar">
-        <a className="wordmark" href="#top" aria-label="Reel favorites home"><span className="wordmark-icon">▶</span> reel<span className="wordmark-light">favorites</span></a>
+        <Link className="wordmark" to="/" aria-label="Reel favorites home"><span className="wordmark-icon">▶</span> reel<span className="wordmark-light">favorites</span></Link>
         <a className="topbar-link" href="#collection">My collection</a>
       </header>
 
@@ -71,13 +78,19 @@ function App() {
             <span className="results-count">{filteredMovies.length} {filteredMovies.length === 1 ? 'TITLE' : 'TITLES'}</span>
           </div>
           <Filter title={titleFilter} onTitleChange={setTitleFilter} minimumRating={minimumRating} onRatingChange={setMinimumRating} />
-          <MovieList movies={filteredMovies} />
+          <MovieList movies={filteredMovies} onSelect={(movie) => navigate(`/movies/${movie.id}`)} />
         </section>
       </main>
       <footer><span className="wordmark small-wordmark">▶ reel<span className="wordmark-light">favorites</span></span><span>Made for the stories that stay.</span><span>YOUR NEXT REWATCH IS WAITING</span></footer>
       {isFormOpen && <AddMovieForm onAdd={addMovie} onClose={() => setIsFormOpen(false)} />}
     </div>
   )
+
+  return <Routes><Route path="/" element={home} /><Route path="/movies/:movieId" element={<MovieDetails movies={movies} />} /><Route path="*" element={<main className="detail-page"><h1>Page not found</h1><Link className="back-link" to="/">← Back to collection</Link></main>} /></Routes>
+}
+
+function slugify(title) {
+  return title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 }
 
 export default App
